@@ -8,7 +8,7 @@ namespace RememberTheDay.UnitTests
     {
 
         [Test]
-        public void NoPersons_WhenNoPersonsAdded()
+        public void WhenCreatingMailing_AndNoPersons_ThanMailingHasNoPersons()
         {
             // Arrange
             Mailing m = new Mailing();
