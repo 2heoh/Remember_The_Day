@@ -1,0 +1,67 @@
+﻿{
+  "version": "1.0.0",
+  "restore": {
+    "projectUniqueName": "/Users/heoh/RiderProjects/Remember_The_Day/RememberTheDay.UnitTests/RememberTheDay.UnitTests.csproj",
+    "projectName": "RememberTheDay.UnitTests",
+    "projectPath": "/Users/heoh/RiderProjects/Remember_The_Day/RememberTheDay.UnitTests/RememberTheDay.UnitTests.csproj",
+    "outputPath": "/Users/heoh/RiderProjects/Remember_The_Day/RememberTheDay.UnitTests/obj/",
+    "projectStyle": "PackageReference",
+    "fallbackFolders": [
+      "/usr/local/share/dotnet/sdk/NuGetFallbackFolder"
+    ],
+    "originalTargetFrameworks": [
+      "netcoreapp2.0"
+    ],
+    "frameworks": {
+      "netcoreapp2.0": {
+        "projectReferences": {
+          "/Users/heoh/RiderProjects/Remember_The_Day/RememberTheDay/RememberTheDay.csproj": {
+            "projectPath": "/Users/heoh/RiderProjects/Remember_The_Day/RememberTheDay/RememberTheDay.csproj"
+          }
+        }
+      }
+    },
+    "warningProperties": {
+      "warnAsError": [
+        "NU1605"
+      ]
+    }
+  },
+  "frameworks": {
+    "netcoreapp2.0": {
+      "dependencies": {
+        "Microsoft.NET.Test.Sdk": {
+          "target": "Package",
+          "version": "[15.3.0-preview-20170628-02, )"
+        },
+        "Microsoft.NETCore.App": {
+          "suppressParent": "All",
+          "target": "Package",
+          "version": "[2.0.0, )",
+          "autoReferenced": true
+        },
+        "NUnit": {
+          "target": "Package",
+          "version": "[3.9.0, )"
+        },
+        "NUnit3TestAdapter": {
+          "target": "Package",
+          "version": "[3.9.0, )"
+        },
+        "xunit": {
+          "target": "Package",
+          "version": "[2.2.0, )"
+        },
+        "xunit.runner.visualstudio": {
+          "target": "Package",
+          "version": "[2.2.0, )"
+        }
+      },
+      "imports": [
+        "net461"
+      ],
+      "assetTargetFallback": true,
+      "warn": true
+    }
+  }
+}
