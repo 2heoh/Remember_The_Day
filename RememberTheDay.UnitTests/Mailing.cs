@@ -1,5 +1,6 @@
-using System;
+using System.Collections.Generic;
 using NUnit.Framework;
+
 
 namespace RememberTheDay.UnitTests
 {
@@ -7,6 +8,13 @@ namespace RememberTheDay.UnitTests
     public class MailingTests
     {
 
+        private List<Person> singlePersonList(Person p)
+        {
+            List<Person> l = new List<Person>();
+            l.Add(p);
+            return l;
+        }
+        
         [Test]
         public void WhenCreating_AndNoPersonsAddded_ThanHasNoPersons()
         {
@@ -24,13 +32,14 @@ namespace RememberTheDay.UnitTests
         {
             // Arrange
             Mailing m = new Mailing();
+            Person p = new Person("a", "b");
             
             // Act
-            m.addRecipient(new Person("a", "b"));
+            m.addRecipient(p);
             
             
             // Assert
-            Assert.AreEqual(m.MailingList.Count, 1);
+            CollectionAssert.AreEqual(m.MailingList, singlePersonList(p));
         }
         
         
@@ -59,13 +68,11 @@ namespace RememberTheDay.UnitTests
             Person p = new Person("a", "b");
             m.addRecipient(p);
             
-            
             // Act
             m.getRecipients(new Person("c", "d"));
             
-            
             // Assert
-            Assert.AreEqual(m.MailingList.Count, 1);
+            CollectionAssert.AreEqual(m.MailingList, singlePersonList(p));
         } 
         
         
@@ -74,16 +81,16 @@ namespace RememberTheDay.UnitTests
         {
             // Arrange
             Mailing m = new Mailing();
-            Person p = new Person("a", "a");
-            m.addRecipient(p);
-            p = new Person("b", "b");
-            m.addRecipient(p);
+            Person p1 = new Person("a", "a");
+            m.addRecipient(p1);
+            Person p2 = new Person("b", "b");
+            m.addRecipient(p2);
             
             // Act
-            m.getRecipients(new Person("a", "a"));
+            m.getRecipients(p1);
                         
             // Assert
-            Assert.AreEqual(m.MailingList.ToArray()[0].Name, "b");
+            CollectionAssert.AreEqual(m.MailingList, singlePersonList(p2));
         }        
     }
 }
