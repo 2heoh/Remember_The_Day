@@ -4,11 +4,11 @@ using NUnit.Framework;
 namespace RememberTheDay.UnitTests
 {
     [TestFixture]
-    public class MailingHas
+    public class MailingTests
     {
 
         [Test]
-        public void WhenCreatingMailing_AndNoPersons_ThanMailingHasNoPersons()
+        public void WhenCreating_AndNoPersonsAddded_ThanHasNoPersons()
         {
             // Arrange
             Mailing m = new Mailing();
@@ -20,7 +20,7 @@ namespace RememberTheDay.UnitTests
         
         
         [Test]
-        public void OnePerson_WhenAddedOnlyOnePerson()
+        public void WhenCreating_AndOnePersonAdded_ThenHasOnlyOnePerson()
         {
             // Arrange
             Mailing m = new Mailing();
@@ -35,7 +35,7 @@ namespace RememberTheDay.UnitTests
         
         
         [Test]
-        public void OnePerson_AndHeHasBirthDay_ThenListIsEmpty()
+        public void WhenCreatingWithOnePerson_AndHeHasBirthDay_ThenListIsEmpty()
         {
             // Arrange
             Mailing m = new Mailing();
@@ -52,7 +52,7 @@ namespace RememberTheDay.UnitTests
         }  
         
         [Test]
-        public void AddedOnePerson_AndAnotherGuyHasBirthDay_ThenListHasOnePerson()
+        public void WhenCreatingWithOnePerson_AndAnotherGuyHasBirthDay_ThenListHasOnePerson()
         {
             // Arrange
             Mailing m = new Mailing();
@@ -70,7 +70,7 @@ namespace RememberTheDay.UnitTests
         
         
         [Test]
-        public void AddedTwoPersons_AndOneOfThemHasBirthDay_ThenListHasAnotherPerson()
+        public void WhenCreatingWithTwoPersons_AndOneOfThemHasBirthDay_ThenListHasSecondPerson()
         {
             // Arrange
             Mailing m = new Mailing();
