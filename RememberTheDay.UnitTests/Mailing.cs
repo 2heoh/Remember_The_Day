@@ -32,7 +32,7 @@ namespace RememberTheDay.UnitTests
         {
             // Arrange
             Mailing m = new Mailing();
-            Person p = new Person("a", "b");
+            Person p = new Person("Homer Simpson", "homer@simpson.com");
             
             // Act
             m.addRecipient(p);
@@ -48,7 +48,7 @@ namespace RememberTheDay.UnitTests
         {
             // Arrange
             Mailing m = new Mailing();
-            Person p = new Person("a", "b");
+            Person p = new Person("Marge Simpson", "marge@simpson.com");
             m.addRecipient(p);
             
             
@@ -65,11 +65,11 @@ namespace RememberTheDay.UnitTests
         {
             // Arrange
             Mailing m = new Mailing();
-            Person p = new Person("a", "b");
+            Person p = new Person("Homer Simpson", "homer@simpson.com");
             m.addRecipient(p);
             
             // Act
-            m.getRecipients(new Person("c", "d"));
+            m.getRecipients(new Person("Marge Simpson", "marge@simpson.com"));
             
             // Assert
             CollectionAssert.AreEqual(m.MailingList, singlePersonList(p));
@@ -81,9 +81,9 @@ namespace RememberTheDay.UnitTests
         {
             // Arrange
             Mailing m = new Mailing();
-            Person p1 = new Person("a", "a");
+            Person p1 = new Person("Homer Simpson", "homer@simpson.com");
             m.addRecipient(p1);
-            Person p2 = new Person("b", "b");
+            Person p2 = new Person("Marge Simpson", "marge@simpson.com");
             m.addRecipient(p2);
             
             // Act
