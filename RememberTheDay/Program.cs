@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+
 
 namespace RememberTheDay
 {
@@ -66,6 +66,14 @@ namespace RememberTheDay
             }
             
             return MailingList;
+        }
+
+        public void Send (string title, string message)
+        {
+
+            EmailSender sender = new EmailSender(); 
+            
+            MailingList.ForEach( x => sender.Send(x.Email, title, message));
         }
         
     }
