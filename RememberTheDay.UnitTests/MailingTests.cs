@@ -1,96 +1,65 @@
 using System.Collections.Generic;
+using System.Linq;
+using Newtonsoft.Json.Schema;
 using NUnit.Framework;
-
 
 namespace RememberTheDay.UnitTests
 {
+    class FakeLogger : ILogger
+    {
+        public void Write(string message)
+        {
+            
+        }
+    }
+
     [TestFixture]
     public class MailingTests
     {
+        [Test]
+        public void WhenAddingRecipient_ThanRepoContainsThisPerson()
+        {
+            var repo = new PersonMemoryRepository(new FakeLogger());
+            var mailing = new Mailing(repo);
 
-        private List<Person> singlePersonList(Person p)
-        {
-            List<Person> l = new List<Person>();
-            l.Add(p);
-            return l;
+            var homer = new Person("Homer Simpson", "homer@simpson.com");
+
+            mailing.addRecipient(homer);
+
+            Assert.IsNotNull(repo.GetList().FirstOrDefault());
         }
-        
+
         [Test]
-        public void WhenCreating_AndNoPersonsAddded_ThanHasNoPersons()
+        public void WhenAddingSameRecipientTwice_ThanRepoContainsOnlyOnePerson()
         {
-            // Arrange
-            Mailing m = new Mailing();
-            
-                        
-            // Assert
-            Assert.AreEqual(m.MailingList.Count, 0);
+            var repo = new PersonMemoryRepository(new FakeLogger());
+            var mailing = new Mailing(repo);
+
+            var homer = new Person("Homer Simpson", "homer@simpson.com");
+
+            mailing.addRecipient(homer);
+            mailing.addRecipient(homer);
+
+            Assert.True(repo.GetList().Count == 1);
         }
-        
-        
+
         [Test]
-        public void WhenCreating_AndOnePersonAdded_ThenHasOnlyOnePerson()
+        public void WhenAddindTwoDifferentPersons_AndOneOfThemHasBirthday_ThenMailingHasOnlySecondPerson()
         {
-            // Arrange
-            Mailing m = new Mailing();
-            Person p = new Person("Homer Simpson", "homer@simpson.com");
+            var repo = new PersonMemoryRepository(new FakeLogger());
+            var mailing = new Mailing(repo);
             
-            // Act
-            m.addRecipient(p);
+            var firstPersonHasBirtDay = new Person("Homer Simpson", "homer@simpson.com");
+            var secondPerson = new Person("Marge Simpson", "marge@simpson.com");
             
-            
-            // Assert
-            CollectionAssert.AreEqual(m.MailingList, singlePersonList(p));
+            mailing.addRecipient(firstPersonHasBirtDay);
+            mailing.addRecipient(secondPerson);
+
+            Assert.True(
+                !mailing.getRecipients(firstPersonHasBirtDay).Contains(firstPersonHasBirtDay)
+                && mailing.getRecipients(firstPersonHasBirtDay).Contains(secondPerson)
+                    );
         }
-        
-        
-        [Test]
-        public void WhenCreatingWithOnePerson_AndHeHasBirthDay_ThenListIsEmpty()
-        {
-            // Arrange
-            Mailing m = new Mailing();
-            Person p = new Person("Marge Simpson", "marge@simpson.com");
-            m.addRecipient(p);
-            
-            
-            // Act
-            m.getRecipients(p);
-            
-            
-            // Assert
-            Assert.AreEqual(m.MailingList.Count, 0);
-        }  
-        
-        [Test]
-        public void WhenCreatingWithOnePerson_AndAnotherGuyHasBirthDay_ThenListHasOnePerson()
-        {
-            // Arrange
-            Mailing m = new Mailing();
-            Person p = new Person("Homer Simpson", "homer@simpson.com");
-            m.addRecipient(p);
-            
-            // Act
-            m.getRecipients(new Person("Marge Simpson", "marge@simpson.com"));
-            
-            // Assert
-            CollectionAssert.AreEqual(m.MailingList, singlePersonList(p));
-        } 
-        
-        
-        [Test]
-        public void WhenCreatingWithTwoPersons_AndOneOfThemHasBirthDay_ThenListHasSecondPerson()
-        {
-            // Arrange
-            Mailing m = new Mailing();
-            Person p1 = new Person("Homer Simpson", "homer@simpson.com");
-            m.addRecipient(p1);
-            Person p2 = new Person("Marge Simpson", "marge@simpson.com");
-            m.addRecipient(p2);
-            
-            // Act
-            m.getRecipients(p1);
-                        
-            // Assert
-            CollectionAssert.AreEqual(m.MailingList, singlePersonList(p2));
-        }        
-    }
+
+}
 }
