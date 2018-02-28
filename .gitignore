@@ -1,2 +1,5 @@
-idea/
-RememberTheDay.UnitTests/bin/*
+.idea/
+RememberTheDay/bin/
+RememberTheDay/obj/
+RememberTheDay.UnitTests/bin/
+RememberTheDay.UnitTests/obj/
