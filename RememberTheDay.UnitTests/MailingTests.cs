@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Schema;
@@ -38,9 +39,12 @@ namespace RememberTheDay.UnitTests
             var homer = new Person("Homer Simpson", "homer@simpson.com");
 
             mailing.addRecipient(homer);
-            mailing.addRecipient(homer);
 
-            Assert.True(repo.GetList().Count == 1);
+            Exception ex = Assert.Throws<Exception>(
+                delegate { mailing.addRecipient(homer); } 
+            );
+            
+            Assert.That(ex.Message, Is.EqualTo("already exists") );
         }
 
         [Test]
@@ -55,10 +59,10 @@ namespace RememberTheDay.UnitTests
             mailing.addRecipient(firstPersonHasBirtDay);
             mailing.addRecipient(secondPerson);
 
-            Assert.True(
-                !mailing.getRecipients(firstPersonHasBirtDay).Contains(firstPersonHasBirtDay)
-                && mailing.getRecipients(firstPersonHasBirtDay).Contains(secondPerson)
-                    );
+            var expected = new List<Person>();
+            expected.Add(secondPerson);
+            
+            Assert.AreEqual(mailing.getRecipients(firstPersonHasBirtDay), expected);
         }
 
 }

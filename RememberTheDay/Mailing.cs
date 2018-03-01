@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace RememberTheDay
@@ -17,6 +18,10 @@ namespace RememberTheDay
             if (!repo.GetList().Contains(person)) 
             {
                 repo.Add(person);
+            }
+            else
+            {
+                throw new Exception("already exists");
             }
         }
 
