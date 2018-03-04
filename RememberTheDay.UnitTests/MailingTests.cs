@@ -30,11 +30,8 @@ namespace RememberTheDay.UnitTests
             // act
             mailing.AddRecipient(homer);
 
-            var expected = new List<Person>();
-            expected.Add(homer);
-            
             // assert 
-            CollectionAssert.AreEqual(repo.GetList(), expected);
+            CollectionAssert.AreEqual(new List<Person> {homer}, repo.GetList());
         }
 
         [Test]
