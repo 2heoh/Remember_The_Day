@@ -7,17 +7,21 @@ namespace RememberTheDay
     public class Mailing
     {
         private IPersonRepo repo;
+        private ILogger logger;
 
-        public Mailing(IPersonRepo _repo)
+        public Mailing(IPersonRepo _repo, ILogger _logger)
         {
             repo = _repo;
+            logger = _logger;
         }
 
-        public void addRecipient(Person person)
+        public void AddRecipient(Person person)
         {
+            
             if (!repo.GetList().Contains(person)) 
             {
                 repo.Add(person);
+                logger.Write(String.Format("added {0}", person));
             }
             else
             {
@@ -25,11 +29,12 @@ namespace RememberTheDay
             }
         }
 
-        public List<Person> getRecipients(Person celebrant)
-        {
-            var recipients = repo.GetList();
-
-            return recipients.Where(x => x.Email != celebrant.Email).ToList();
+        public List<Person> GetNextWeekCelebrants(DateTime today)
+        {            
+            var recipientList = repo.GetList();
+            logger.Write(String.Format("found {0} person(s)", recipientList.Count));
+            return recipientList.FindAll(
+                x => (x.BirthDay.AddYears(today.Year - x.BirthDay.Year) - today).TotalDays <= 7);
         }
     }
 }

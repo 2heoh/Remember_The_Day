@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Xml.Schema;
 
 
 namespace RememberTheDay
@@ -8,20 +9,22 @@ namespace RememberTheDay
     {
         static void Main(string[] args)
         {
-
-            var repo = new PersonMemoryRepository(new ConsoleLogger());
+    
+            var repo = new PersonRepository(new ConsoleLogger(), new MacFileSystem());
             
-            Mailing ml = new Mailing(repo);
-
-            var log = new ConsoleLogger();
+            Mailing ml = new Mailing(repo, new ConsoleLogger());
             
-            var mary = new Person("Mary Jane", "mary.jane@myorg.com");
-            var kate = new Person("Kate Stark", "kate.stark@myorg.com");
+            var mary = new Person("Mary Jane", "mary.jane@myorg.com", new DateTime(1980, 01, 01));
+            var kate = new Person("Kate Stark", "kate.stark@myorg.com", new DateTime(1984, 12, 31));
 
-            ml.addRecipient(mary);
-            ml.addRecipient(kate);
+            ml.AddRecipient(mary);
+            ml.AddRecipient(kate);
+            
+            DateTime today = new DateTime().Date;
 
-            var mailingList = ml.getRecipients(mary);
+            var mailingList = ml.GetNextWeekCelebrants(today);
+            
+            
         }
     }
 
