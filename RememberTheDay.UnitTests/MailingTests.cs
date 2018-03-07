@@ -1,156 +1,249 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using Moq;
-using Newtonsoft.Json.Schema;
 using NUnit.Framework;
+using RememberTheDay.UnitTests.DSL;
 
 namespace RememberTheDay.UnitTests
 {
-    class LoggerStub : ILogger
-    {
-        public void Write(string message)
-        {
-            
-        }
-    }
-
     [TestFixture]
     public class MailingTests
     {
-        
+
         [Test]
         public void WhenAddingRecipient_ThanRepoContainsThisPerson()
         {
             // arrange
-            var repo = new PersonMemoryRepository();
-            var mailing = new Mailing(repo, new LoggerStub());
-            var homer = new Person("Homer", "h.simpson@fox.com", new DateTime(1970, 2, 23));
-                        
+            var homer = The.Person("Homer")
+                           .WithEmail("h.simpson@fox.com")
+                           .Born(23.FebraryOf(1970));
+            
+            var mailing = The.Mailing().StoreInMemory().WithLoggerStub().Please();
+            
             // act
             mailing.AddRecipient(homer);
 
             // assert 
-            CollectionAssert.AreEqual(new List<Person> {homer}, repo.GetList());
+            CollectionAssert.AreEqual(new List<Person> {homer}, mailing.Repo.GetList());
         }
 
         [Test]
         public void WhenAddingSameRecipientTwice_ThanThrowsExceptionAlreadyExists()
         {
-            var repo = new PersonMemoryRepository();
-            var mailing = new Mailing(repo, new LoggerStub());
-            var homer = new Person("Homer", "h.simpson@fox.com", new DateTime(1970, 2, 23));
+            // arrange
+            var homer = The.Person("Homer")
+                           .WithEmail("h.simpson@fox.com")
+                           .Born(23.FebraryOf(1970));
 
-            mailing.AddRecipient(homer);
-
-            Exception ex = Assert.Throws<Exception>(
-                delegate { mailing.AddRecipient(homer); } 
-            );
+            var repo = The.Repo().InMemory().Please();
             
-            Assert.That(ex.Message, Is.EqualTo("already exists") );
+            var mailing = The.Mailing()
+                             .StoreIn(repo)
+                             .With(TheLogger.Stub()).Please();
+            
+            mailing.AddRecipient(homer);
+            
+            // act & assert
+            Assert.Throws<AlreadyExistsException>(() =>  mailing.AddRecipient(homer));
+
         }
 
         [Test]
         public void WhenGettingListOfCelebrantsNextWeek_AndWeHaveOnlyOneBirthDay_ThenWeGetOnlyOnePerson()
         {
-            var repo = new PersonMemoryRepository();
-            var mailing = new Mailing(repo, new LoggerStub());
+            // arrange
+            var repo = The.Repo().InMemory().Please();
             
-            var homer = new Person("Homer", "h.simpson@fox.com", new DateTime(1970, 2, 23));
-            var marge = new Person("Marge", "m.simpson@fox.com", new DateTime(1973, 3, 8));
+            var mailing = The.Mailing().StoreIn(repo).With(TheLogger.Stub()).Please();
+
+            var homer = The.Person("Homer")
+                           .WithEmail("h.simpson@fox.com")
+                           .Born(23.FebraryOf(1970));
             
             mailing.AddRecipient(homer);
-            mailing.AddRecipient(marge);
 
-            var result = mailing.GetNextWeekCelebrants(new DateTime(2017, 2, 20));
+            var marge = The.Person("Marge")
+                           .WithEmail("m.simpson@fox.com")
+                           .Born(8.MarchOf(1973));                
             
+            mailing.AddRecipient(marge);            
+
+            var bart = The.Person("Bart")
+                .WithEmail("bart.simpson@gmail.com")
+                .Born(19.MarchOf(1989));                
+            
+            mailing.AddRecipient(bart);            
+            
+            // act
+            var result = mailing.GetNextWeekCelebrants(20.FebraryOf(2017));
+
+            // assert
             Assert.AreEqual(new List<Person> {homer}, result);
         }
-        
+
         [Test]
         public void WhenAddingNewPerson_LoggerWritesHisNameAndBirthDayOnce()
         {
-            var mockLogger = new Mock<ILogger>();
-            var repo = new PersonMemoryRepository();
+            var mockLogger = TheLogger.Mock();
+            var mailing = The.Mailing().StoreInMemory().With(mockLogger.Object).Please();
 
-            var mailing = new Mailing(repo, mockLogger.Object);
+            var homer = The.Person("Homer")
+                           .WithEmail("h.simpson@fox.com")
+                           .Born(23.FebraryOf(1970));
             
-            mailing.AddRecipient(new Person("Homer", "h.simpson@fox.com", new DateTime(1970, 2, 23)));
-            
-            mockLogger.Verify( x => x.Write("added Person: Homer 02/23/1970 00:00:00"), Times.Once() );
-        }        
+            // act
+            mailing.AddRecipient(homer);
+
+            mockLogger.Verify(x => x.Write("added Person: Homer 23.02.1970"), Times.Once());
+        }
 
         [Test]
         public void WhenGettingNextWeekCelebrants_ThenLoggerOnceWritesThatThereIsTwoPersons()
         {
-            var mockLogger = new Mock<ILogger>();
+            var mockLogger = TheLogger.Mock();
+            var mailing = The.Mailing().StoreInMemory().With(mockLogger.Object).Please();
 
-            var mailing = new Mailing(new PersonMemoryRepository(), mockLogger.Object);
+            var homer = The.Person("Homer")
+                .WithEmail("h.simpson@fox.com")
+                .Born(1.FebraryOf(1970));
+
+            var marge = The.Person("Marge")
+                .WithEmail("m.simpson@fox.com")
+                .Born(31.DecemberOf(1970));
             
-            mailing.AddRecipient(new Person("Homer", "h.simpson@fox.com", new DateTime(1970, 1, 1)));
-            mailing.AddRecipient(new Person("Marge", "m.simpson@fox.com", new DateTime(1973, 12, 31)));
+            mailing.AddRecipient(homer);
+            mailing.AddRecipient(marge);
 
-            mailing.GetNextWeekCelebrants(new DateTime(2017, 12, 30));
+            mailing.GetNextWeekCelebrants(30.DecemberOf(2017));
 
             mockLogger.Verify(x => x.Write("found 2 person(s)"), Times.Once());
         }
 
-        
+
         [Test]
         public void WhenGettingListOfPersons_AndListIsEmpty_ThenLoggerWritesThatNoPersonFound()
         {
-            var mockLogger = new Mock<ILogger>();
-            var mockFileSystem = new Mock<MacFileSystem>();
-            mockFileSystem.Setup(x => x.GetFiles()).Returns(new string[0]);
-            var repo = new PersonRepository(mockLogger.Object, mockFileSystem.Object);
+            var mockLogger = TheLogger.Mock();
+            var repo = The.Repo().InMacFileSystem().Empty().With(mockLogger.Object).Please();
             
-            var mailing = new Mailing(repo, mockLogger.Object);
+            var mailing = The.Mailing().StoreIn(repo).With(mockLogger.Object).Please();
 
-            mailing.GetNextWeekCelebrants(new DateTime(1980, 1, 1));
-            
+            // act
+            mailing.GetNextWeekCelebrants(1.JanuaryOf(1980));
+
             mockLogger.Verify(x => x.Write("found 0 person(s)"));
         }
 
         [Test]
         public void WhenGettingListOfPersons_AndThereIsOnePerson_ThenLoggerWritesHisEmailNameAndBirthday()
         {
-            var mockLogger = new Mock<ILogger>();
-            var mockFileSystem = new Mock<MacFileSystem>();
+            var mockLogger = TheLogger.Mock();
             
-            mockFileSystem.Setup(x => x.GetFiles()).Returns(new []{"/path/to/personfile.txt"});
-            mockFileSystem.Setup(x => x.LoadFromFile(It.IsAny<string>()))
-                .Returns(new []{"h.simpson@fox.com", "Homer", "1970/01/01"});
-            
-            var repo = new PersonRepository(mockLogger.Object, mockFileSystem.Object);
-            
-            var mailing = new Mailing(repo, mockLogger.Object);
+            var repo = The.Repo()
+                          .InMacFileSystem()
+                          .HasFile("/path/to/personfile.txt")
+                          .InIt(new[] {"h.simpson@fox.com", "Homer", "1970/01/01"})
+                          .With(mockLogger.Object)
+                          .Please();
 
-            mailing.GetNextWeekCelebrants(new DateTime(1980, 1, 1));
-            
+            var mailing = The.Mailing().StoreIn(repo).With(mockLogger.Object).Please();
+
+            mailing.GetNextWeekCelebrants(1.JanuaryOf(1980));
+
             mockLogger.Verify(x => x.Write("found Person - email: h.simpson@fox.com name: Homer birthday: 1970/01/01"));
-        }        
-        
-        
+        }
+
+
         [Test]
         public void WhenAddingNewPerson_AndListIsEmpty_ThenLoggerWritesFileName()
         {
 
-            var homer = new Person("Homer", "h.simpson@fox.com", new DateTime(1970, 1, 1));
-            
-            var mockLogger = new Mock<ILogger>();
-            var mockFileSystem = new Mock<MacFileSystem>();
+            var mockLogger = TheLogger.Mock();
 
-            mockFileSystem.Setup(x => x.SaveToFile(It.IsAny<string>(), new string[0]));
-            mockFileSystem.Setup(x => x.GetFiles()).Returns(new string[0]);
-            mockFileSystem.Setup(x => x.MakeFileName(It.IsAny<string>())).Returns("/some/path.txt");
-            
-            var repo = new PersonRepository(mockLogger.Object, mockFileSystem.Object);
-            
-            var mailing = new Mailing(repo, mockLogger.Object);
+            var repo = The.Repo()
+                .InMacFileSystem()
+                .Empty()
+                .Write(new string[0])
+                .ToFile("/some/path.txt")
+                .With(mockLogger.Object)
+                .Please();            
 
+            var mailing = The.Mailing().StoreIn(repo).With(mockLogger.Object).Please();
+
+            var homer = The.Person("Homer")
+                .WithEmail("h.simpson@fox.com")
+                .Born(1.FebraryOf(1970));
+            
+            // act
             mailing.AddRecipient(homer);
-            
+
+            // assert
             mockLogger.Verify(x => x.Write("filename: /some/path.txt"));
         }
+        
+        [Test]
+        public void WhenOneBirthdayNextWeek_ThenWeGetMailMessageWithoutThatPersonInAddressList()
+        {
+
+            var repo = The.Repo()
+                .InMemory()
+                .With(TheLogger.Stub())
+                .Please();            
+
+            var mailing = The.Mailing()
+                .StoreIn(repo)
+                .With(TheLogger.Stub())
+                .AddSimpsons()
+                .Please();
+
+            // act
+            var forNextWeek = mailing.CreateBirthDayMessagesForNextWeek(4.MarchOf(2017));
+
+            Assert.True(The.MessageList(forNextWeek).First().NotContainInAddress("m.simpson@fox.com"));
+        }
+
+        [Test]
+        public void WhenTwoBirthDaysNextWeek_AndWeGetTwoLetters_ThenSecondHasAllAddressesExceptCelebrator()
+        {
+            var repo = The.Repo()
+                .InMemory()
+                .With(TheLogger.Stub())
+                .Please();            
+
+            var mailing = The.Mailing()
+                .StoreIn(repo)
+                .With(TheLogger.Stub())
+                .AddSimpsons()
+                .Please();    
+            
+            var forNextWeek = mailing.CreateBirthDayMessagesForNextWeek(2.MarchOf(2017));
+            
+            Assert.True(The.MessageList(forNextWeek).Number(2).ContainEmailsAllExcept("meggie.simpson@gmail.com"));
+        }
+        
+        [Test]
+        public void WhenTwoBirthDaysNextWeek_AndWeSendTwoLetters_ThenEmailSenderCalledTwice()
+        {
+            var logger = TheLogger.Stub();
+            
+            var repo = The.Repo()
+                .InMemory()
+                .With(logger)
+                .Please();
+
+            var Email = The.Sender().Email();
+            
+            var mailing = The.Mailing()
+                .StoreIn(repo)
+                .With(logger)
+                .AddSimpsons()
+                .SendBy(Email.Please())
+                .Please();    
+            
+            //act
+            mailing.GetMessagesAndSend(2.MarchOf(2017));
+            
+            // assert
+            Email.SentTimes(2);
+        }        
     }
 }

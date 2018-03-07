@@ -11,7 +11,7 @@ namespace RememberTheDay.UnitTests
         {
             var homer = new Person("Homer", "h.simpson@fox.com", new DateTime(1980, 1, 1));
 
-            StringAssert.Contains("Homer 01/01/1980 00:00:00", homer.ToString());
+            StringAssert.Contains("Homer 01.01.1980", homer.ToString());
         }
     }
 }

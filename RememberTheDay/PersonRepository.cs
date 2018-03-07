@@ -5,15 +5,12 @@ using System.IO;
 namespace RememberTheDay
 {
 
-
-
-    
     public class PersonRepository : IPersonRepo
     {
         public ILogger logger;
         public IFileSystem filesystem;
         
-        public PersonRepository(ILogger log, IFileSystem fs)
+        public PersonRepository(IFileSystem fs, ILogger log)
         {
             logger = log;
             filesystem = fs;

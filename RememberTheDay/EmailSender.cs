@@ -1,45 +1,55 @@
-﻿using System.Net.Mail;
-using System.Reflection;
+﻿using System;
+using System.Net.Mail;
 
 namespace RememberTheDay
 {
-    public class EmailSender
-    {
-        
-        private SmtpClient _client;
+    public class EmailClient {
         private string _host = "smtp.gmail.com";
         private int _port = 25;
-        private string emailFrom = "you@yourcompany.com";
+        public string emailFrom = "you@yourcompany.com";
 
-        public EmailSender()
+        private SmtpClient _client; 
+        
+        public EmailClient()
         {
             _client = new SmtpClient();
             _client.DeliveryMethod = SmtpDeliveryMethod.Network;
             _client.UseDefaultCredentials = false;
             _client.Host = _host;    
             _client.Port = _port;
+
+        }
+
+        public void Send(MyMailMessage myMessage)
+        {
+            MailMessage message = new MailMessage(emailFrom, String.Join(", ", myMessage.SendTo));
+            message.Subject = myMessage.Subject;
+            message.Body = myMessage.Message;
             
+        }
+    }
+    
+    public class EmailSender : ISender
+    {
+        
+        private ILogger Logger;
+        private EmailClient Client;
+
+        public EmailSender(EmailClient _client)
+        {
+            Client = _client;
         }
         
-        public EmailSender(string host, int port)
+        public void setLogger(ILogger log)
         {
-            _client = new SmtpClient();
-            _client.DeliveryMethod = SmtpDeliveryMethod.Network;
-            _client.UseDefaultCredentials = false;
-            
-            _client.Host = host;    
-            _client.Port = port;
-            
+            Logger = log;
         }
+        
 
-        public void Send(string emailTo , string subject, string body)
+        public void Send(MyMailMessage myMessage)
         {
-            MailMessage mail = new MailMessage(emailFrom, emailTo);
-
-            mail.Subject = subject;
-            mail.Body = body;
-            _client.Send(mail);
-
+            Logger.Write("Sending email");              
+            Client.Send(myMessage);
         }
         
     }
