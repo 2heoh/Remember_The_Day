@@ -23,7 +23,7 @@ namespace RememberTheDay.UnitTests
             mailing.AddRecipient(homer);
 
             // assert 
-            CollectionAssert.AreEqual(new List<Person> {homer}, mailing.Repo.GetList());
+            CollectionAssert.AreEqual(new Person[] {homer}, mailing.Repo.GetList());
         }
 
         [Test]
@@ -77,7 +77,7 @@ namespace RememberTheDay.UnitTests
             var result = mailing.GetNextWeekCelebrants(20.FebraryOf(2017));
 
             // assert
-            Assert.AreEqual(new List<Person> {homer}, result);
+            Assert.AreEqual(new Person[] {homer}, result);
         }
 
         [Test]
